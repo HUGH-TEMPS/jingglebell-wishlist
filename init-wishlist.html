@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Wishlist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Initialize Wishlist</h1>
+        <p>Click the button below to add the default items to your wishlist.</p>
+        <button onclick="addItems()">Add Default Items</button>
+        <button onclick="clearWishlist()">Clear All Items</button>
+        <a href="wishlist.html" style="display: inline-block; margin-left: 10px; color: #667eea;">View Wishlist</a>
+        <div id="result"></div>
+    </div>
+
+    <script src="wishlist-storage.js"></script>
+    <script>
+        const initialItems = [
+            {
+                title: "Headset Wireless Bluetooth",
+                link: "https://shopee.ph/Tylex-S4000-Headset-Wireless-Bluetooth-Stereo-Foldable-TF-Card-FM-AUX-Support-8Hrs-Playtime-i.119987099.3169867218?extraParams=%7B%22display_model_id%22%3A61673789304%2C%22model_selection_logic%22%3A3%7D&sp_atk=eda47a2d-2957-49f5-834d-3f6d46730858&xptdk=eda47a2d-2957-49f5-834d-3f6d46730858",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7rasi-m5ay1vdwvguy6a.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            },
+            {
+                title: "Men's Jacket Outdoor Waterproof",
+                link: "https://shopee.ph/Men's-Jacket-Outdoor-Waterproof-Large-Zip-Hooded-Detachable-Jacket-Breathable-Coat-i.333369948.20030649696?extraParams=%7B%22display_model_id%22%3A226682993435%2C%22model_selection_logic%22%3A3%7D&sp_atk=088b03df-e69c-4db0-bfe9-adbedd079e5f&xptdk=088b03df-e69c-4db0-bfe9-adbedd079e5f",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7r98y-lz8w4fd7wscae6.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            },
+            {
+                title: "Camping Moon Chair Buy 1 Take 1",
+                link: "https://shopee.ph/product/584255260/44408470089?d_id=d868e&uls_trackid=54bapnfv00e3",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7ra0m-mcvte5i2oftk62.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            }
+        ];
+
+        function addItems() {
+            const resultDiv = document.getElementById('result');
+            let addedCount = 0;
+            let skippedCount = 0;
+
+            initialItems.forEach(item => {
+                if (WishlistStorage.linkExists(item.link)) {
+                    skippedCount++;
+                } else {
+                    WishlistStorage.addItem(item);
+                    addedCount++;
+                }
+            });
+
+            resultDiv.className = 'success';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <strong>Success!</strong><br>
+                Added ${addedCount} new items.<br>
+                Skipped ${skippedCount} items (already exist).
+                <br><br>
+                <a href="wishlist.html" style="color: #155724; font-weight: bold;">View Wishlist →</a>
+            `;
+        }
+
+        function clearWishlist() {
+            if (confirm('Are you sure you want to clear all wishlist items? This cannot be undone.')) {
+                localStorage.removeItem('wishlistItems');
+                const resultDiv = document.getElementById('result');
+                resultDiv.className = 'info';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = 'Wishlist cleared!';
+            }
+        }
+    </script>
+</body>
+</html>
+

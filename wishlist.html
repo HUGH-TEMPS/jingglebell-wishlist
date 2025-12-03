@@ -191,6 +191,47 @@
 
     <script src="wishlist-storage.js"></script>
     <script>
+        // Default items to add if wishlist is empty
+        const defaultItems = [
+            {
+                title: "Headset Wireless Bluetooth",
+                link: "https://shopee.ph/Tylex-S4000-Headset-Wireless-Bluetooth-Stereo-Foldable-TF-Card-FM-AUX-Support-8Hrs-Playtime-i.119987099.3169867218?extraParams=%7B%22display_model_id%22%3A61673789304%2C%22model_selection_logic%22%3A3%7D&sp_atk=eda47a2d-2957-49f5-834d-3f6d46730858&xptdk=eda47a2d-2957-49f5-834d-3f6d46730858",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7rasi-m5ay1vdwvguy6a.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            },
+            {
+                title: "Men's Jacket Outdoor Waterproof",
+                link: "https://shopee.ph/Men's-Jacket-Outdoor-Waterproof-Large-Zip-Hooded-Detachable-Jacket-Breathable-Coat-i.333369948.20030649696?extraParams=%7B%22display_model_id%22%3A226682993435%2C%22model_selection_logic%22%3A3%7D&sp_atk=088b03df-e69c-4db0-bfe9-adbedd079e5f&xptdk=088b03df-e69c-4db0-bfe9-adbedd079e5f",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7r98y-lz8w4fd7wscae6.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            },
+            {
+                title: "Camping Moon Chair Buy 1 Take 1",
+                link: "https://shopee.ph/product/584255260/44408470089?d_id=d868e&uls_trackid=54bapnfv00e3",
+                image_url: "https://down-ph.img.susercontent.com/file/ph-11134207-7ra0m-mcvte5i2oftk62.webp",
+                description: "",
+                date_added: new Date().toISOString()
+            }
+        ];
+
+        // Initialize default items if wishlist is empty
+        (function() {
+            const items = WishlistStorage.getItems();
+            if (items.length === 0) {
+                // Check if we've already initialized (to avoid re-adding on every page load)
+                const initialized = localStorage.getItem('wishlistInitialized');
+                if (!initialized) {
+                    defaultItems.forEach(item => {
+                        WishlistStorage.addItem(item);
+                    });
+                    localStorage.setItem('wishlistInitialized', 'true');
+                    console.log('Default items added to wishlist');
+                }
+            }
+        })();
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
