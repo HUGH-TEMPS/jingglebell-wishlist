@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Wall Video</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none !important;
+            visibility: hidden;
+        }
+
+        video.playing {
+            display: block !important;
+            visibility: visible;
+        }
+
+        .ice-wall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg,
+                    rgba(135, 206, 250, 0.9) 0%,
+                    rgba(176, 224, 230, 0.9) 50%,
+                    rgba(135, 206, 250, 0.9) 100%);
+            backdrop-filter: blur(2px);
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            visibility: visible;
+        }
+
+        .ice-wall.broken {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        .ice-wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px);
+            opacity: 0.5;
+        }
+
+        .ice-wall::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 8px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            box-shadow:
+                0 0 20px rgba(255, 255, 255, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .tap-counter {
+            position: relative;
+            z-index: 11;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .tap-counter h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: glow 1.5s ease-in-out infinite alternate;
+            padding: 0 1rem;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .tap-counter p {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            padding: 0 1rem;
+        }
+
+        .progress-bar {
+            width: 300px;
+            max-width: 90%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            margin-top: 2rem;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 768px) {
+            .tap-counter h1 {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .tap-counter p {
+                font-size: 1.2rem;
+                margin-top: 0.5rem;
+            }
+
+            .progress-bar {
+                width: 250px;
+                height: 18px;
+                margin-top: 1.5rem;
+            }
+
+            .ice-wall::after {
+                width: 150px;
+                height: 150px;
+                border: 6px solid rgba(255, 255, 255, 0.6);
+            }
+
+            .ice-piece {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .tap-counter h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .tap-counter p {
+                font-size: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .progress-bar {
+                width: 200px;
+                height: 16px;
+                margin-top: 1rem;
+            }
+
+            .ice-wall::after {
+                width: 120px;
+                height: 120px;
+                border: 5px solid rgba(255, 255, 255, 0.6);
+            }
+
+            .ice-piece {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .ice-wall {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(200, 230, 255, 0.8));
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+
+        .crack {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .crack.visible {
+            opacity: 1;
+        }
+
+        .crack svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ice-wall.tapped {
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            75% { transform: translateX(5px) rotate(1deg); }
+        }
+
+        .break-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 12;
+        }
+
+        .ice-piece {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            animation: fall 1s ease-out forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <video id="videoPlayer" controls preload="auto" loop="false">
+            <source src="jinggle bell.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="ice-wall" id="iceWall">
+            <div class="tap-counter">
+                <h1>ICE WALL</h1>
+                <p>Tap <span id="tapsRemaining">5</span> times to break</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="crack" id="crack">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M20,20 L30,40 L50,30 L70,50 L80,30" stroke="rgba(255,255,255,0.8)" stroke-width="0.5" fill="none" />
+                    <path d="M40,60 L60,80 L80,70" stroke="rgba(255,255,255,0.8)" stroke-width="0.5" fill="none" />
+                    <path d="M10,50 L30,70 L50,60" stroke="rgba(255,255,255,0.8)" stroke-width="0.5" fill="none" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const iceWall = document.getElementById('iceWall');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const tapsRemaining = document.getElementById('tapsRemaining');
+        const progressFill = document.getElementById('progressFill');
+        const crack = document.getElementById('crack');
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoSource = urlParams.get('video') || 'jinggle bell.mp4';
+        const requiredTaps = parseInt(urlParams.get('taps')) || 5;
+
+        // Update video source if provided
+        if (urlParams.get('video')) {
+            videoPlayer.querySelector('source').src = videoSource;
+            videoPlayer.load();
+        }
+
+        // Update taps display
+        tapsRemaining.textContent = requiredTaps;
+
+        let tapCount = 0;
+        let lastTapTime = 0;
+        const tapDelay = 100; // Prevent double taps on mobile
+
+        // Ensure video is ready when page loads
+        videoPlayer.addEventListener('canplay', function() {
+            console.log('Video is ready to play');
+        });
+
+        // Handle video load errors
+        videoPlayer.addEventListener('error', function(e) {
+            console.error('Video error:', e);
+            console.error('Video source:', videoPlayer.src);
+            alert('Error loading video. Please check if the video file exists.');
+        });
+
+        // Redirect to wishlist page when video ends
+        videoPlayer.addEventListener('ended', function() {
+            console.log('Video ended, redirecting to wishlist...');
+            window.location.href = 'wishlist.html';
+        });
+
+        // Prevent video from looping
+        videoPlayer.loop = false;
+
+        function handleTap(e) {
+            const currentTime = Date.now();
+            // Prevent rapid double taps on mobile
+            if (currentTime - lastTapTime < tapDelay) {
+                return;
+            }
+            lastTapTime = currentTime;
+
+            // Get touch or click coordinates
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+            tapCount++;
+            const progress = (tapCount / requiredTaps) * 100;
+
+            // Update UI
+            tapsRemaining.textContent = requiredTaps - tapCount;
+            progressFill.style.width = progress + '%';
+
+            // Add visual feedback
+            iceWall.classList.add('tapped');
+            setTimeout(() => {
+                iceWall.classList.remove('tapped');
+            }, 300);
+
+            // Show cracks as progress increases
+            if (tapCount >= 2) {
+                crack.classList.add('visible');
+            }
+
+            // Create ice pieces on tap
+            createIcePieces(x, y);
+
+            // Break the wall after required taps
+            if (tapCount >= requiredTaps) {
+                breakIceWall();
+            }
+        }
+
+        // Support both click and touch events for mobile
+        iceWall.addEventListener('click', handleTap);
+        iceWall.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Prevent default touch behavior
+            handleTap(e);
+        }, { passive: false });
+
+        function createIcePieces(x, y) {
+            const numPieces = 5;
+            for (let i = 0; i < numPieces; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'ice-piece';
+                piece.style.left = x + 'px';
+                piece.style.top = y + 'px';
+                piece.style.transform = `translate(${(Math.random() - 0.5) * 100}px, ${(Math.random() - 0.5) * 100}px)`;
+                piece.style.animationDelay = (i * 0.1) + 's';
+
+                iceWall.appendChild(piece);
+
+                setTimeout(() => {
+                    piece.remove();
+                }, 1000);
+            }
+        }
+
+        function breakIceWall() {
+            // Add break animation
+            iceWall.classList.add('broken');
+
+            // Create final break effect
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const piece = document.createElement('div');
+                    piece.className = 'ice-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.top = Math.random() * 100 + '%';
+                    piece.style.width = (30 + Math.random() * 40) + 'px';
+                    piece.style.height = (30 + Math.random() * 40) + 'px';
+                    iceWall.appendChild(piece);
+
+                    setTimeout(() => {
+                        piece.remove();
+                    }, 1000);
+                }, i * 50);
+            }
+
+            // Remove ice wall and play video after animation
+            setTimeout(() => {
+                iceWall.style.display = 'none';
+                videoPlayer.classList.add('playing');
+
+                // Ensure video is loaded and ready
+                if (videoPlayer.readyState >= 2) {
+                    // Video is loaded, try to play
+                    const playPromise = videoPlayer.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            console.log('Video is playing');
+                            // Ensure video doesn't loop
+                            videoPlayer.loop = false;
+                        }).catch(err => {
+                            console.error('Video play error:', err);
+                            // If autoplay fails, show a play button or message
+                            videoPlayer.controls = true;
+                            alert('Please click the play button to start the video');
+                        });
+                    }
+                } else {
+                    // Wait for video to load
+                    videoPlayer.addEventListener('loadeddata', function() {
+                        const playPromise = videoPlayer.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                console.log('Video is playing');
+                                // Ensure video doesn't loop
+                                videoPlayer.loop = false;
+                            }).catch(err => {
+                                console.error('Video play error:', err);
+                                videoPlayer.controls = true;
+                            });
+                        }
+                    }, { once: true });
+
+                    // Force load if not already loading
+                    videoPlayer.load();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+

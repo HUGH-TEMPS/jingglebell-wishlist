@@ -1,0 +1,21 @@
+# PHP files (original versions)
+*.php
+
+# JSON data files (using localStorage instead)
+wishlist.json
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
