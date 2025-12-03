@@ -175,6 +175,7 @@
         <div class="header">
             <h1>🌟 My Wishlist 🌟</h1>
             <p>Hugh Butch Templo</p>
+            <button onclick="loadWishlist()" style="background: white; color: #667eea; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔄 Refresh</button>
         </div>
 
         <div id="wishlistContent">
@@ -197,8 +198,12 @@
         }
 
         function loadWishlist() {
+            // Force reload from localStorage
             const wishlistItems = WishlistStorage.getItems();
             const contentDiv = document.getElementById('wishlistContent');
+            
+            // Debug: log items count
+            console.log('Loading wishlist, items count:', wishlistItems.length);
 
             if (wishlistItems.length === 0) {
                 contentDiv.innerHTML = `
@@ -226,6 +231,25 @@
 
         // Load wishlist when page loads
         loadWishlist();
+
+        // Listen for storage changes (updates when localStorage changes in other tabs/windows)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'wishlistItems') {
+                loadWishlist();
+            }
+        });
+
+        // Also reload when page becomes visible (in case user navigates back)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadWishlist();
+            }
+        });
+
+        // Reload when page is focused (handles back button navigation)
+        window.addEventListener('focus', function() {
+            loadWishlist();
+        });
     </script>
 </body>
 </html>

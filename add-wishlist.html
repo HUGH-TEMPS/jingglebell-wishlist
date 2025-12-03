@@ -247,8 +247,12 @@
 
             // Save to localStorage
             if (WishlistStorage.addItem(newItem)) {
-                showMessage('Item added successfully!', 'success');
+                showMessage('Item added successfully! Redirecting...', 'success');
                 form.reset();
+                // Redirect to wishlist page after 1 second
+                setTimeout(() => {
+                    window.location.href = 'wishlist.html';
+                }, 1000);
             } else {
                 showMessage('Error saving item. Please try again.', 'error');
             }
